@@ -121,7 +121,9 @@ class Modal extends HTMLElement {
   }
 
   async validateMicrophone() {
-    let permission = navigator.mediaDevices
+    let permission;
+    try{
+      permission = navigator.mediaDevices
       .getUserMedia({ video: false, audio: true })
       .then((stream) => {
         return true;
@@ -129,6 +131,10 @@ class Modal extends HTMLElement {
       .catch((err) => {
         return false;
       });
+    }catch(err){
+      this.$modalDOMTitle.innerHTML = "Insecure website"
+      this.$modalDOMMessage.innerHTML = "Make sure to use secure SSL websites to allow access to the microphone.";
+    }
     return permission;
   }
 

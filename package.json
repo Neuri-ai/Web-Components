@@ -8,7 +8,8 @@
     "private": true,
     "scripts": {
       "build": "webpack",
-      "start": "webpack-dev-server --open --config webpack.config.js"
+      "start": "webpack-dev-server --open --config webpack.config.js",
+      "start-https": "webpack-dev-server --https --open --config webpack.config.js"
     },
     "devDependencies": {
       "html-webpack-plugin": "^5.5.0",
