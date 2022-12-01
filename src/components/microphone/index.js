@@ -2,7 +2,7 @@ class Microphone extends HTMLElement {
   constructor() {
     super();
     this.shadowDOM = this.attachShadow({ mode: "open" });
-    this.microstate = 'ndsactive';
+    this.microstate = 'ndshide'; // use "ndsactive/ndshide" to activate/deactivate button
   }
 
   connectedCallback() {
@@ -335,6 +335,15 @@ class Microphone extends HTMLElement {
 
   async initComponent() {
     this.$root = this.shadowDOM.querySelector(".permission-modal");
+    this.$mic = this.shadowDOM.getElementById("neurimic")
+
+    // when mic is pressed run anim and start to listen
+    this.$mic.onclick = () => {
+      this.$mic.classList.add('ndsactive')
+      for (const child of this.$mic.children) {
+        child.classList.add('ndsactive')
+      }
+    }
   }
 
   disconnectedCallback() {
