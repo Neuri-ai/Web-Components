@@ -25,5 +25,20 @@
         <modal-popup></modal-popup>
         <mic-button></mic-button>
     </div>
+
+    <script>
+        window.addEventListener('onInit', (e) => {
+            let message = e.detail.message
+            console.log(message)
+        });
+        window.addEventListener('onStart', (e) => {
+            let message = e.detail.message
+            console.log(message)
+        });
+        window.addEventListener('onStop', (e) => {
+            let message = e.detail.message
+            console.log(message)
+        });
+    </script>
 </body>
 </html>
