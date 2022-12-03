@@ -12,6 +12,7 @@
     "start-https": "webpack-dev-server --https --open --config webpack.config.js"
   },
   "devDependencies": {
+    "compression-webpack-plugin": "^10.0.0",
     "html-webpack-plugin": "^5.5.0",
     "lit": "^2.2.8",
     "webpack": "^5.73.0",
