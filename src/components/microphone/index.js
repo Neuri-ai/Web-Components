@@ -14,7 +14,7 @@ class Microphone extends HTMLElement {
 		this.SAMPLERATE = 16000;
 		this.LANG = "es-mx";
 		this.SERVICE = "FULL";
-		this.URL = `wss://api.neuri.ai/api/apha/v1/services/audio/realtime?apikey=${this.APIKEY}&sample_rate=${this.SAMPLERATE}&lang=${this.LANG}`;
+		this.URL = `wss://api.neuri.ai/api/apha/v1/services/audio/realtime?apikey=${this.APIKEY}&sample_rate=${this.SAMPLERATE}&lang=${this.LANG}&servoce=${this.SERVICE}`;
 		this.toggled = false;
 		this.isRecording = false;
 		this.recorder;
@@ -118,13 +118,11 @@ class Microphone extends HTMLElement {
 				}
 			};
 			this.socket.onerror = (error) => {
-				console.log(error);
 				this.socket.close();
 				this.socket = null;
 			};
 
 			this.socket.onclose = (event) => {
-				console.log(event);
 				this.socket = null; // clean of memory
 			};
 
