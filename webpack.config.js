@@ -1,6 +1,5 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const CompressionPlugin = require("compression-webpack-plugin");
 
 
 module.exports = {
@@ -21,7 +20,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: "index.html",
       template:  path.join(__dirname, "public/index.html"),
-    })
+    }),
   ],
   devServer: {
     static: {
@@ -31,5 +30,4 @@ module.exports = {
     compress: true,
     port: 8080,
   },
-  performance: { hints: false }
 };
