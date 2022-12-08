@@ -24,6 +24,7 @@
     <div class="root">
         <modal-popup title="no se puede usar el microfono" message="esto es una prueba"></modal-popup>
         <mic-button></mic-button>
+        <drawer-component></drawer-component>
     </div>
 
     <script>
@@ -35,10 +36,12 @@
             let message = e.detail.message
             console.log(message)
         });
+        /*
         window.addEventListener('onSpeech', (e) => {
             let result = e.detail
             console.log(result)
         });
+        */
     </script>
 </body>
 </html>
