@@ -1,2 +1,2 @@
-import Microphone from './components/microphone/index';
-customElements.get('drawer-modal') || customElements.define('drawer-modal', Microphone);
+import Drawer from './components/drawer/index';
+customElements.get('drawer-component') || customElements.define('drawer-component', Drawer);

@@ -10,7 +10,7 @@ class Microphone extends HTMLElement {
 	constructor() {
 		super();
 		this.shadowDOM = this.attachShadow({ mode: "open" });
-		this.APIKEY = "";
+		this.APIKEY = "jFfK1D_hSDr35w0DhHFbZLRxuCxXauQSAQ";
 		this.SAMPLERATE = 16000;
 		this.LANG = "";
 		this.SERVICE = "";
