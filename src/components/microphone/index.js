@@ -10,10 +10,14 @@ class Microphone extends HTMLElement {
 	constructor() {
 		super();
 		this.shadowDOM = this.attachShadow({ mode: "open" });
+<<<<<<< HEAD
 		this.APIKEY = "jFfK1D_hSDr35w0DhHFbZLRxuCxXauQSAQ";
+=======
+		this.APIKEY = "";
+>>>>>>> 4ee1143ba33d308a45baf65d4f57b59f4680f638
 		this.SAMPLERATE = 16000;
-		this.LANG = "es-mx";
-		this.SERVICE = "FULL";
+		this.LANG = "";
+		this.SERVICE = "";
 		this.URL = `wss://api.neuri.ai/api/apha/v1/services/audio/realtime?apikey=${this.APIKEY}&sample_rate=${this.SAMPLERATE}&lang=${this.LANG}&servoce=${this.SERVICE}`;
 		this.toggled = false;
 		this.isRecording = false;
