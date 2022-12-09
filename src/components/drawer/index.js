@@ -39,10 +39,23 @@ class Drawer extends HTMLElement {
   templateCss() {
     return `
 			<style>
-            .drawer-highlight{
-                color: blue;
-            }
-		    </style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+        .drawer-component {
+          padding: 10px;
+          background-color: #172641;
+          border-radius: 10px;
+          width: fit-content;
+        }
+        .drawer-component h1 {
+          font-family: 'Poppins';
+          font-size: 16px;
+          color: white;
+          font-weight: bold;
+        }
+        .drawer-highlight{
+          color: #75D8EF;
+        }
+		  </style>
 		`;
   }
 
