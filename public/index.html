@@ -15,16 +15,31 @@
             box-sizing: border-box;
         }
         body{
-            background-color: purple;
+            background-color: #212121;
         }
 
     </style>
 </head>
 <body>
     <div class="root">
-        <modal-popup></modal-popup>
-        <mic-button></mic-button>
-
+        <modal-popup title="This is a title" message="This is a body message"></modal-popup>
+        <mic-button apikey="API_KEY_HERE" lang="LANG" service="FULL"></mic-button>
+        <drawer-component delay="3000"></drawer-component>
     </div>
+
+    <script>
+        window.addEventListener('onInit', (e) => {
+            let message = e.detail.message
+            console.log(message)
+        });
+        window.addEventListener('onStart', (e) => {
+            let message = e.detail.message
+            console.log(message)
+        });
+        window.addEventListener('onSpeech', (e) => {
+            let result = e.detail
+            console.log(result)
+        });
+    </script>
 </body>
 </html>
