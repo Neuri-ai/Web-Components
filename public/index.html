@@ -23,8 +23,8 @@
 <body>
     <div class="root">
         <modal-popup title="no se puede usar el microfono" message="esto es una prueba"></modal-popup>
-        <mic-button></mic-button>
-        <drawer-component></drawer-component>
+        <mic-button apikey="jFfK1D_hSDr35w0DhHFbZLRxuCxXauQSAQ" lang="es-mx" service="FULL"></mic-button>
+        <drawer-component delay="3000"></drawer-component>
     </div>
 
     <script>
@@ -36,12 +36,10 @@
             let message = e.detail.message
             console.log(message)
         });
-        /*
         window.addEventListener('onSpeech', (e) => {
             let result = e.detail
             console.log(result)
         });
-        */
     </script>
 </body>
 </html>

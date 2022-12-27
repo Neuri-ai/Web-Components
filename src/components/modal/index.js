@@ -33,16 +33,14 @@ class Modal extends HTMLElement {
 				<div class="permission-modal">
 						<div class="permission-modal-content">
 							<div class="permission-modal-header">
-									<h2 class="permission-modal-title">${
-										this.attributes.title.value != ""
-											? this.attributes.title.value
-											: "Allow Microphone"
-									}</h2>
-									<p class="permission-modal-message">${
-										this.attributes.message.value != ""
-											? this.attributes.message.value
-											: "To use voice input, press Allow to give access to your microphone."
-									}</p>
+									<h2 class="permission-modal-title">${this.attributes.title.value != ""
+				? this.attributes.title.value
+				: "Allow Microphone"
+			}</h2>
+									<p class="permission-modal-message">${this.attributes.message.value != ""
+				? this.attributes.message.value
+				: "To use voice input, press Allow to give access to your microphone."
+			}</p>
 						 </div>
 							 <div class="permission-modal-body">
 									<button class="permission-modal-button" id="permission-allow">Allow</button>
@@ -113,19 +111,17 @@ class Modal extends HTMLElement {
 	}
 
 	validateBrowser() {
-		// validate speechreo
-		const browserspeech =
-			window.webkitSpeechRecognition || window.SpeechRecognition;
-		try {
-			const browserspeech_ = new browserspeech();
+		// validate microphone access
+		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 			return true;
-		} catch (err) {
+		} else {
 			this.$root.style.display = "inherit";
 			this.$modalDOMTitle.innerHTML = "Unsupported browser";
 			this.$modalDOMMessage.innerHTML =
-				"To enable the SpeechRecognition in Firefox Nightly > 72, go to about:config and switch the flags media.webspeech.recognition.enable and media.webspeech.recognition.force_enable to true.";
+				"This browser does not support voice input. Please use a Chromium based browser like Chrome or Edge. or use firefox";
 			return false;
 		}
+
 	}
 
 	async validateMicrophone() {
