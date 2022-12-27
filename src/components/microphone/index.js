@@ -10,10 +10,10 @@ class Microphone extends HTMLElement {
 	constructor() {
 		super();
 		this.shadowDOM = this.attachShadow({ mode: "open" });
-		this.APIKEY = "jFfK1D_hSDr35w0DhHFbZLRxuCxXauQSAQ";
+		this.APIKEY = "";
 		this.SAMPLERATE = 16000;
-		this.LANG = "";
-		this.SERVICE = "";
+		this.LANG = "es-mx";
+		this.SERVICE = "FULL";
 		this.URL = `wss://api.neuri.ai/api/apha/v1/services/audio/realtime?apikey=${this.APIKEY}&sample_rate=${this.SAMPLERATE}&lang=${this.LANG}&servoce=${this.SERVICE}`;
 		this.toggled = false;
 		this.isRecording = false;
@@ -55,11 +55,34 @@ class Microphone extends HTMLElement {
 	}
 
 	mapComponentAttributes() {
-		const attributesMapping = ["title", "message"];
+		const attributesMapping = ["apikey", "lang", "service"];
 
 		attributesMapping.map((key) => {
-			if (!this.attributes[key]) {
-				this.attributes[key] = { value: "" };
+			// if is missing an attribute, then show error
+			if (!this.hasAttribute(key)) {
+
+				this.onError = new CustomEvent("onError", {
+					bubbles: true,
+					composed: true,
+					cancelable: true,
+					detail: {
+						message: `Missing attribute: ${key}`,
+					},
+				});
+				this.dispatchEvent(this.onError);
+				
+				// raise error
+				throw new Error(`Missing attribute: ${key}`);
+			}else{
+				// set service uppercase and lang lowercase finaly set the attribute (except apikey)
+				if(key === "service" || key === "lang"){
+					this[key.toUpperCase()] = this.getAttribute(key).toUpperCase();
+				}else{
+					this[key.toUpperCase()] = this.getAttribute(key);
+				}
+
+				// set the url
+				this.URL = `wss://api.neuri.ai/api/apha/v1/services/audio/realtime?apikey=${this.APIKEY}&sample_rate=${this.SAMPLERATE}&lang=${this.LANG}&servoce=${this.SERVICE}`;
 			}
 		});
 	}
