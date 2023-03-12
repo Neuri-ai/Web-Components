@@ -7,6 +7,7 @@ module.exports = {
   entry: {
     'modal': path.resolve(__dirname, 'src/modal.js'),
     'mic': path.resolve(__dirname, 'src/microphone.js'),
+    'drawer': path.resolve(__dirname, 'src/drawer.js'),
     'web-components.bundle.min': path.resolve(__dirname, 'src/index.js')
   },
   mode: "production",
