@@ -50,7 +50,7 @@ class Drawer extends HTMLElement {
             transition: all 3s ease;
           }
           .drawer-component h1 {
-            font-family: 'Poppins';
+            font-family: 'Poppins', sans-serif;
             font-size: 16px;
             color: white;
             font-weight: bold;
