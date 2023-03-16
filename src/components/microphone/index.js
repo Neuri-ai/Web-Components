@@ -129,12 +129,14 @@ class Microphone extends HTMLElement {
 
 	cleanPreviousRecognition() {
 		// clean recorder when stop
-		this.recorder.stopRecording(() => {
-			this.recorder.destroy();
-			this.recorder = null;
-		});
-		this.socket.close();
-		this.socket = null;
+		if (this.recorder) {
+			this.recorder.stopRecording(() => {
+				this.recorder.destroy();
+				this.recorder = null;
+			});
+			this.socket.close();
+			this.socket = null;
+		}
 	}
 
 	async recognize() {
@@ -153,10 +155,14 @@ class Microphone extends HTMLElement {
 					detail: JSON.parse(event.data),
 				});
 
+				let data = JSON.parse(event.data);
+				if(data.isFinal){
+					this.cleanPreviousRecognition()
+					this.isRecording = false;
+				}
+
 				this.dispatchEvent(this.onSpeech);
-			}catch (e) {
-				console.log(event.data);
-			}
+			}catch (e) {}
 		};
 
 		this.socket.onclose = () => {
@@ -182,7 +188,7 @@ class Microphone extends HTMLElement {
 				  numberOfAudioChannels: 1,
 				  desiredSampRate: this.SAMPLERATE,
 				  bufferSize: 4096,
-				  timeSlice: 250,
+				  timeSlice: 750,
 				  ondataavailable: (blob) => {
 					const reader = new FileReader();
 					reader.onload = () => {
@@ -211,7 +217,14 @@ class Microphone extends HTMLElement {
 		this.$mic = this.shadowDOM.getElementById("neurimic");
 
 		this.$mic.onclick = async () => {
-			await this.recognize();
+			if(this.isRecording){
+				this.cleanPreviousRecognition();
+				this.isRecording = false;
+			}
+			else{
+				this.isRecording = true;
+				await this.recognize();
+			}
 		};
 
 		this.dispatchEvent(this.onInit);
