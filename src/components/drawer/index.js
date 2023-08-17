@@ -87,7 +87,7 @@ class Drawer extends HTMLElement {
             this.$root.style.display = "block"
 
             // if data.isFinal is true, then it means that the user has finished speaking and the transcription is complete
-            if(this.data.isFinal){
+            if(this.data.isFinal && this.data.entities){
               // highlith each value if match with some word in this.data.entities values array
               this.data.entities.forEach((entity) => {
                 this.drawerTranscript.innerHTML = this.drawerTranscript.innerHTML.replace(entity.value, `<span class="drawer-highlight">${entity.value}</span>`)
