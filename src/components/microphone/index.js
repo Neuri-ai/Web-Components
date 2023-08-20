@@ -194,11 +194,10 @@ class Microphone extends HTMLElement {
         this.audioChunks.push(new Float32Array(audioData));
 
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-          // reduce last audio chunk to buffer size (480)
           const lastChunk = this.audioChunks[this.audioChunks.length - 1];
-          const lastChunkReduced = new Float32Array(480);
+          const lastChunkReduced = new Float32Array(512);
           lastChunkReduced.set(
-            lastChunk.slice(lastChunk.length - 480, lastChunk.length),
+            lastChunk.slice(lastChunk.length - 512, lastChunk.length),
             0
           );
 
@@ -208,6 +207,7 @@ class Microphone extends HTMLElement {
           lastChunkReduced.forEach((value, index) => {
             audio.setInt16(index * 2, value * 0x7fff, true);
           });
+
           // convert the audio to base64 and send it to the server
           const base64String = btoa(
             String.fromCharCode(...new Uint8Array(buffer))
