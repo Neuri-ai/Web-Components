@@ -50,7 +50,7 @@ class Drawer extends HTMLElement {
             transition: all 3s ease;
           }
           .drawer-component h1 {
-            font-family: 'Poppins';
+            font-family: 'Poppins', sans-serif;
             font-size: 16px;
             color: white;
             font-weight: bold;
@@ -87,18 +87,21 @@ class Drawer extends HTMLElement {
             this.$root.style.display = "block"
 
             // if data.isFinal is true, then it means that the user has finished speaking and the transcription is complete
-            if(this.data.isFinal){
-              // highlith each value if match with some word in this.data.entities values array
-              this.data.entities.forEach((entity) => {
-                this.drawerTranscript.innerHTML = this.drawerTranscript.innerHTML.replace(entity.value, `<span class="drawer-highlight">${entity.value}</span>`)
-              })
+        }
+    });
+    window.addEventListener('onResult', (e) => {
+        this.data = e.detail
+        if(this.data.entities){
+          // highlith each value if match with some word in this.data.entities values array
+          this.data.entities.forEach((entity) => {
+            this.drawerTranscript.innerHTML = this.drawerTranscript.innerHTML.replace(entity.value, `<span class="drawer-highlight">${entity.value}</span>`)
+          })
 
-              // await for the delay time and then clean the drawer
-              setTimeout(() => {
-                this.$root.style.display = "none"
-                this.drawerTranscript.innerHTML = ""
-              }, parseInt(this.attributes.delay.value) || 1500);
-            }
+          // await for the delay time and then clean the drawer
+          setTimeout(() => {
+            this.$root.style.display = "none"
+            this.drawerTranscript.innerHTML = ""
+          }, parseInt(this.attributes.delay.value) || 1500);
         }
     });
   }
