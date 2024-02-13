@@ -19,5 +19,8 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.9.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "axios": "^1.6.7",
+    "word-to-numbers": "^1.0.0"
+  }
 }

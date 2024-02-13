@@ -1,6 +1,9 @@
+import axios from "axios";
+const wordToNum = require('word-to-numbers');
+
 class Microphone extends HTMLElement {
   /**
-		Consideraciones:
+		IMPORTANTE:
 
 		para apagar/encender los estilos del microfono se debe toglear entre (ndshide y ndsactive)
 
@@ -15,11 +18,6 @@ class Microphone extends HTMLElement {
     this.URL;
     this.TRANSLATE_TO = null;
     this.TEMPERATURE = 0.8;
-    this.isRecording = false;
-    this.socket = null;
-    this.audioContext = null;
-    this.mediaRecorder = null;
-    this.audioChunks = [];
 
     // events
     this.$eventDetails; // should be object: {}
@@ -30,11 +28,11 @@ class Microphone extends HTMLElement {
       cancelable: true,
       detail: { message: "Initialized" },
     });
-    this.onError = new CustomEvent("onError", {
+    this.onStop = new CustomEvent("onStop", {
       bubbles: true,
       composed: true,
       cancelable: true,
-      detail: {},
+      detail: { message: "User stop speaking" },
     });
   }
 
@@ -45,13 +43,7 @@ class Microphone extends HTMLElement {
   }
 
   mapComponentAttributes() {
-    const attributesMapping = [
-      "apikey",
-      "lang",
-      "service",
-      "temperature",
-      "translate_to",
-    ];
+    const attributesMapping = ["apikey", "lang", "service", "temperature"];
 
     attributesMapping.map((key) => {
       // if is missing an attribute, then show error
@@ -95,7 +87,7 @@ class Microphone extends HTMLElement {
         }
 
         // set the url
-        this.URL = `wss://api.neuri.ai/api/v1/service/audio/realtime?lang=${this.LANG}&service=${this.SERVICE}&api_key=${this.APIKEY}&temperature=${this.TEMPERATURE}&translate_to=${this.TRANSLATE_TO}&samplerate=${this.SAMPLERATE}`;
+        this.URL = `https://api.neuri.ai/api/v1/service/text/`;
       }
     });
   }
@@ -126,107 +118,79 @@ class Microphone extends HTMLElement {
     }
   }
 
-  cleanPreviousRecognition() {
-    if (this.socket) {
-      this.socket.close(); // Close the WebSocket connection
-      this.socket = null;
-    }
-    if (this.mediaRecorder) {
-      this.mediaRecorder.stop();
-      this.mediaRecorder = null;
-    }
-    if (this.audioContext) {
-      this.audioContext.close().then(() => {
-        this.audioContext = null;
-      });
-    }
-    this.isRecording = false;
-  }
-
   async recognize() {
-    this.socket = new WebSocket(this.URL);
-    this.socket.onmessage = (event) => {
-      try {
-        this.onSpeech = new CustomEvent("onSpeech", {
+    const browserSpeechAPI =
+      new window.webkitSpeechRecognition() || new window.SpeechRecognition();
+    browserSpeechAPI.interimResults = true;
+    browserSpeechAPI.continuous = false;
+    browserSpeechAPI.lang = this.lang;
+    let transcription = "";
+
+    browserSpeechAPI.onresult = (event) => {
+      transcription = Array.from(event.results)
+        .map((result) => result[0])
+        .map((result) => result.transcript)
+        .join("");
+
+      // dispatch onInit event
+      this.dispatchEvent(
+        new CustomEvent("onSpeech", {
           bubbles: true,
           composed: true,
           cancelable: true,
-          detail: JSON.parse(event.data),
-        });
-
-        let data = JSON.parse(event.data);
-        if (data.isFinal) {
-          this.cleanPreviousRecognition();
-          this.isRecording = false;
-        }
-
-        this.dispatchEvent(this.onSpeech);
-      } catch (e) {}
-    };
-
-    this.socket.onclose = () => {
-      this.toggleMic();
-      this.cleanPreviousRecognition();
-    };
-
-    this.socket.onerror = () => {
-      this.toggleMic();
-      this.cleanPreviousRecognition();
-    };
-
-    this.socket.onopen = async () => {
-      this.toggleMic();
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)({ sampleRate: 16000 });
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      const source = this.audioContext.createMediaStreamSource(stream);
-      const scriptProcessorNode = this.audioContext.createScriptProcessor(
-        512,
-        1,
-        1
+          detail: { transcription, isFinal: false },
+        })
       );
-      source.connect(scriptProcessorNode);
-      scriptProcessorNode.connect(this.audioContext.destination);
+    };
 
-      scriptProcessorNode.onaudioprocess = (event) => {
-        const audioData = event.inputBuffer.getChannelData(0);
-        this.audioChunks.push(new Float32Array(audioData));
+    browserSpeechAPI.onstart = () => {
+      this.dispatchEvent(this.onInit);
+      this.toggleMic();
+    };
 
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-          const lastChunk = this.audioChunks[this.audioChunks.length - 1];
-          const lastChunkReduced = new Float32Array(512);
-          lastChunkReduced.set(
-            lastChunk.slice(lastChunk.length - 512, lastChunk.length),
-            0
-          );
+    browserSpeechAPI.onend = async (e) => {
+      this.toggleMic();
 
-          // convert  lastChunkReduced to 16-bit PCM wav format
-          const buffer = new ArrayBuffer(lastChunkReduced.length * 2);
-          const audio = new DataView(buffer);
-          lastChunkReduced.forEach((value, index) => {
-            audio.setInt16(index * 2, value * 0x7fff, true);
-          });
+      this.dispatchEvent(
+        new CustomEvent("onSpeech", {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          detail: { transcription: wordToNum(transcription), isFinal: true },
+        })
+      );
+      this.dispatchEvent(this.onStop);
 
-          // convert the audio to base64 and send it to the server
-          const base64String = btoa(
-            String.fromCharCode(...new Uint8Array(buffer))
-          );
-          this.socket.send(
-            JSON.stringify({
-              audio_data: base64String,
+      // connect axios to send the transcription to the server
+      await axios
+        .post(
+          this.URL,
+          {
+            text: wordToNum(transcription),
+            lang: this.LANG,
+            service: this.SERVICE,
+            temperature: this.TEMPERATURE,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${this.APIKEY}`,
+            },
+          }
+        )
+        .then((response) => {
+          this.dispatchEvent(
+            new CustomEvent("onResult", {
+              bubbles: true,
+              composed: true,
+              cancelable: true,
+              detail: response.data,
             })
           );
-        }
-      };
-
-      this.mediaRecorder = {
-        stop: () => {
-          scriptProcessorNode.disconnect();
-          this.audioContext = null;
-        },
-      };
+        });
     };
+
+    browserSpeechAPI.start();
   }
 
   async initComponent() {
@@ -234,12 +198,7 @@ class Microphone extends HTMLElement {
     this.$mic = this.shadowDOM.getElementById("neurimic");
 
     this.$mic.onclick = async () => {
-      if (this.isRecording) {
-        this.cleanPreviousRecognition();
-      } else {
-        this.isRecording = true;
-        await this.recognize();
-      }
+      await this.recognize();
     };
 
     this.dispatchEvent(this.onInit);
