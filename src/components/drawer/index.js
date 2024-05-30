@@ -92,10 +92,10 @@ class Drawer extends HTMLElement {
     window.addEventListener('onResult', (e) => {
         this.data = e.detail
         if(this.data.entities){
-          // highlith each value if match with some word in this.data.entities values array
-          this.data.entities.forEach((entity) => {
-            this.drawerTranscript.innerHTML = this.drawerTranscript.innerHTML.replace(entity.value, `<span class="drawer-highlight">${entity.value}</span>`)
-          })
+          // highlith each value if match with some word in this.data.entities values array (each entity is an object like this: {"start": 31,"end": 32,"label": "NUMBER","text": "3"}
+            this.data.entities.forEach(entity => {
+              this.drawerTranscript.innerHTML = this.drawerTranscript.innerHTML.replace(entity.text, `<span class="drawer-highlight">${entity.text}</span>`)
+            });
 
           // await for the delay time and then clean the drawer
           setTimeout(() => {

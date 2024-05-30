@@ -1,5 +1,5 @@
 import axios from "axios";
-const wordToNum = require('word-to-numbers');
+const wordToNum = require("word-to-numbers");
 
 class Microphone extends HTMLElement {
   /**
@@ -12,12 +12,13 @@ class Microphone extends HTMLElement {
   constructor() {
     super();
     this.shadowDOM = this.attachShadow({ mode: "open" });
-    this.APIKEY = "";
+    this.API_KEY = "";
     this.LANG = "en";
-    this.SERVICE = "FULL";
+    this.MODEL = "";
     this.URL;
     this.TRANSLATE_TO = null;
     this.TEMPERATURE = 0.8;
+    this.APP_ID = "";
 
     // events
     this.$eventDetails; // should be object: {}
@@ -43,7 +44,13 @@ class Microphone extends HTMLElement {
   }
 
   mapComponentAttributes() {
-    const attributesMapping = ["apikey", "lang", "service", "temperature"];
+    const attributesMapping = [
+      "API_KEY",
+      "lang",
+      "model",
+      "temperature",
+      "app_id",
+    ];
 
     attributesMapping.map((key) => {
       // if is missing an attribute, then show error
@@ -87,7 +94,7 @@ class Microphone extends HTMLElement {
         }
 
         // set the url
-        this.URL = `https://api.neuri.ai/api/v1/service/text/`;
+        this.URL = `https://api.neuri.ai/api/v1/ml/model/${this.MODEL}`;
       }
     });
   }
@@ -151,6 +158,31 @@ class Microphone extends HTMLElement {
     browserSpeechAPI.onend = async (e) => {
       this.toggleMic();
 
+      let data = JSON.stringify({
+        text: wordToNum(transcription)
+      });
+
+      let config = {
+        method: "post",
+        url: `https://api.neuri.ai/api/v1/ml/model/${this.MODEL}`,
+        headers: {
+          app_id: this.APP_ID,
+          "Content-Type": "application/json",
+          apikey: this.API_KEY,
+        },
+        data: data,
+      };
+      axios.request(config).then((response) => {
+        this.dispatchEvent(
+          new CustomEvent("onResult", {
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+            detail: response.data,
+          })
+        );
+      });
+
       this.dispatchEvent(
         new CustomEvent("onSpeech", {
           bubbles: true,
@@ -160,34 +192,6 @@ class Microphone extends HTMLElement {
         })
       );
       this.dispatchEvent(this.onStop);
-
-      // connect axios to send the transcription to the server
-      await axios
-        .post(
-          this.URL,
-          {
-            text: wordToNum(transcription),
-            lang: this.LANG,
-            service: this.SERVICE,
-            temperature: this.TEMPERATURE,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${this.APIKEY}`,
-            },
-          }
-        )
-        .then((response) => {
-          this.dispatchEvent(
-            new CustomEvent("onResult", {
-              bubbles: true,
-              composed: true,
-              cancelable: true,
-              detail: response.data,
-            })
-          );
-        });
     };
 
     browserSpeechAPI.start();
