@@ -45,7 +45,7 @@ class Microphone extends HTMLElement {
 
   mapComponentAttributes() {
     const attributesMapping = [
-      "API_KEY",
+      "api_key",
       "lang",
       "model",
       "temperature",
